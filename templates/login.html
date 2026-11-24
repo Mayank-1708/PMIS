@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Login | PM Internship Scheme</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body class="auth-bg future-theme">
+  {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+      <div class="toast-wrap">
+        {% for category, message in messages %}
+          <div class="toast {{ category }}">{{ message }}</div>
+        {% endfor %}
+      </div>
+    {% endif %}
+  {% endwith %}
+
+  <div class="auth-wrap auth-wrap-premium">
+    <div class="auth-card hover-soft futureshine-auth">
+      <div>
+        <span class="eyebrow">Portal Access</span>
+        <h1>Step into a brighter internship future.</h1>
+        <p class="muted">Choose your role and continue into a premium, light, and trustworthy interface designed for seekers, companies, and admins.</p>
+
+        <form class="form" method="POST" action="/login">
+          <label>Login As</label>
+          <select id="roleSelect" name="role" required>
+            <option value="">Select Role</option>
+            <option value="seeker">Intern Seeker</option>
+            <option value="company">Company (Intern Provider)</option>
+            <option value="admin">Authorizer (Admin)</option>
+          </select>
+
+          <label>Email</label>
+          <input id="emailInput" type="email" name="email" placeholder="example@gmail.com" required>
+
+          <label>Password</label>
+          <div class="password-row">
+            <input id="passwordInput" type="password" name="password" placeholder="Enter password" required>
+            <button class="icon-btn" type="button" id="togglePass">Show</button>
+          </div>
+
+          <div class="row-between">
+            <span class="muted tiny">Role-based secure access</span>
+            <span class="muted tiny">Lightweight and demo-ready</span>
+          </div>
+
+          <button class="btn btn-primary full" type="submit">Continue</button>
+          <a class="btn btn-outline full" href="/signup">Create Account</a>
+        </form>
+      </div>
+
+      <div class="mini-card auth-side-panel info-panel">
+        <span class="section-label">Inside the Portal</span>
+        <h3>What happens next</h3>
+        <ul class="clean-list compact-list">
+          <li>AI-assisted candidate ranking</li>
+          <li>Admin allocation controls</li>
+          <li>Company interview verification</li>
+          <li>Final offer and student acceptance</li>
+        </ul>
+        <p class="muted tiny" style="margin-top:10px;">Designed to feel calm, polished, and trustworthy on desktop and mobile.</p>
+      </div>
+    </div>
+  </div>
+
+  <script src="{{ url_for('static', filename='script.js') }}"></script>
+</body>
+</html>

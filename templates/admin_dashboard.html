@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Admin Dashboard</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+  {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+      <div class="toast-wrap">
+        {% for category, message in messages %}
+          <div class="toast {{ category }}">{{ message }}</div>
+        {% endfor %}
+      </div>
+    {% endif %}
+  {% endwith %}
+
+  <div class="dashboard">
+    <aside class="sidebar" id="sidebar">
+      <div class="sidebar-top">
+        <div class="logo small">PM Internship</div>
+        <button class="nav-toggle side-toggle" id="sideToggle">Menu</button>
+      </div>
+      <button class="side-link active" data-tab="overviewTab">Monitoring</button>
+      <button class="side-link" data-tab="openingsTab">Openings</button>
+      <button class="side-link" data-tab="researchTab">Research Engine</button>
+      <a class="side-link logout" href="/logout">Logout</a>
+    </aside>
+
+    <main class="main">
+      <div class="topbar topbar-wrap">
+        <div>
+          <h2>Admin Monitoring Dashboard</h2>
+          <p class="muted">Track applications, run bulk allocation, and watch the full internship pipeline end to end.</p>
+        </div>
+        <form method="POST" action="/admin/bulk_approve_all" class="inline-action">
+          <button class="btn btn-primary" type="submit">Run Bulk Allocation</button>
+        </form>
+      </div>
+
+      <section class="tab active" id="overviewTab">
+        <div class="card">
+          <h3>Live Monitoring</h3>
+          <p class="muted tiny">These counters update across admin allocation, company verification, and final offer acceptance.</p>
+
+          <div class="kpi-grid four-up">
+            <div class="kpi-card"><h4>Open Internships</h4><p>{{ open_internships }}</p></div>
+            <div class="kpi-card"><h4>Pending Review</h4><p>{{ stats['pending'] }}</p></div>
+            <div class="kpi-card"><h4>Allocated</h4><p>{{ stats['allocated'] }}</p></div>
+            <div class="kpi-card"><h4>Interview Stage</h4><p>{{ stats['interview_scheduled'] }}</p></div>
+            <div class="kpi-card"><h4>Company Verified</h4><p>{{ stats['verified'] }}</p></div>
+            <div class="kpi-card"><h4>Offers Sent</h4><p>{{ stats['successful'] }}</p></div>
+            <div class="kpi-card"><h4>Accepted</h4><p>{{ stats['accepted'] }}</p></div>
+            <div class="kpi-card"><h4>Reapproval Queue</h4><p>{{ reapproval_needed }}</p></div>
+          </div>
+
+          <div class="insight-grid">
+            <div class="card hover-soft compact-card">
+              <h4>Inclusion Snapshot</h4>
+              <p class="muted tiny">Live candidates currently in pipeline.</p>
+              <div class="mini-metrics">
+                <span class="metric-pill">Rural live: <b>{{ rural_live }}</b></span>
+                <span class="metric-pill">Aspirational live: <b>{{ aspirational_live }}</b></span>
+              </div>
+            </div>
+            <div class="card hover-soft compact-card">
+              <h4>Allocation Logic</h4>
+              <p class="muted tiny">Admin can still approve manually, but bulk allocation now supports end-to-end flow with interview verification before final offer.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="tab" id="researchTab">
+        <div class="card">
+          <h3>AI Research Engine Results</h3>
+          <p class="muted tiny">These panels are generated from the upgraded architecture: SBERT enrichment, ML prediction, learning-to-rank, policy-aware stable allocation, SHAP explanations, and reallocation recovery.</p>
+
+          {% if research.summary %}
+            <div class="kpi-grid four-up">
+              <div class="kpi-card"><h4>Selected ML Model</h4><p>{{ research.summary['selected_ml_model'] }}</p></div>
+              <div class="kpi-card"><h4>Selected Ranker</h4><p>{{ research.summary['selected_ranker'] }}</p></div>
+              <div class="kpi-card"><h4>Completion Rate</h4><p>{{ (research.summary['completion_label_rate']|float * 100)|round(1) }}%</p></div>
+              <div class="kpi-card"><h4>Recovered Seats</h4><p>{{ research.summary['recovered_seats'] }}</p></div>
+              <div class="kpi-card"><h4>NDCG@10</h4><p>{{ research.summary['NDCG@10'] }}</p></div>
+              <div class="kpi-card"><h4>MRR</h4><p>{{ research.summary['MRR'] }}</p></div>
+              <div class="kpi-card"><h4>Rural Gap</h4><p>{{ research.summary['rural_representation_gap'] }}</p></div>
+              <div class="kpi-card"><h4>Social Gap</h4><p>{{ research.summary['social_category_representation_gap'] }}</p></div>
+            </div>
+
+            <div class="insight-grid">
+              <div class="card hover-soft compact-card">
+                <h4>Allocation Quality</h4>
+                <iframe class="research-frame" src="{{ url_for('admin_research_chart', filename='allocation_quality.svg') }}"></iframe>
+              </div>
+              <div class="card hover-soft compact-card">
+                <h4>Model F1 Comparison</h4>
+                <iframe class="research-frame" src="{{ url_for('admin_research_chart', filename='model_f1.svg') }}"></iframe>
+              </div>
+            </div>
+
+            <div class="insight-grid">
+              <div class="card hover-soft compact-card">
+                <h4>SHAP Global Feature Importance</h4>
+                <iframe class="research-frame" src="{{ url_for('admin_research_chart', filename='shap_global_importance.svg') }}"></iframe>
+              </div>
+              <div class="card hover-soft compact-card">
+                <h4>Local Explanation Waterfall</h4>
+                <iframe class="research-frame" src="{{ url_for('admin_research_chart', filename='shap_local_waterfall.svg') }}"></iframe>
+              </div>
+            </div>
+
+            <div class="card hover-soft compact-card">
+              <h4>Allocation Comparison</h4>
+              <div class="table-scroll">
+                <table class="data-table">
+                  <thead>
+                    <tr>
+                      <th>Method</th>
+                      <th>Allocated</th>
+                      <th>Avg Skill</th>
+                      <th>First-Time</th>
+                      <th>Rural</th>
+                      <th>Completion Rate</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {% for row in research.allocation_comparison %}
+                      <tr>
+                        <td>{{ row['method'] }}</td>
+                        <td>{{ row['allocated'] }}</td>
+                        <td>{{ row['avg_skill_similarity'] }}</td>
+                        <td>{{ row['first_time_share'] }}</td>
+                        <td>{{ row['rural_share'] }}</td>
+                        <td>{{ row['completion_label_rate'] }}</td>
+                      </tr>
+                    {% endfor %}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            <div class="card hover-soft compact-card">
+              <h4>Policy Quota Report</h4>
+              <div class="mini-metrics">
+                {% for key, value in research.quota_report.items() %}
+                  <span class="metric-pill">{{ key.replace('_', ' ') }}: <b>{{ value }}</b></span>
+                {% endfor %}
+              </div>
+            </div>
+
+            <div class="card hover-soft compact-card">
+              <h4>Scalability Experiment</h4>
+              <div class="table-scroll">
+                <table class="data-table">
+                  <thead>
+                    <tr>
+                      <th>Students</th>
+                      <th>Allocated</th>
+                      <th>Completion</th>
+                      <th>Recovered</th>
+                      <th>Model</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {% for row in research.multi_size %}
+                      <tr>
+                        <td>{{ row['dataset_size'] }}</td>
+                        <td>{{ row['allocated'] }}</td>
+                        <td>{{ row['completion_label_rate'] }}</td>
+                        <td>{{ row['recovered_seats'] }}</td>
+                        <td>{{ row['selected_ml_model'] }}</td>
+                      </tr>
+                    {% endfor %}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          {% else %}
+            <div class="list-card">
+              <div>
+                <h4>Research outputs not found</h4>
+                <p>Run the research pipeline first, then reload this dashboard.</p>
+              </div>
+            </div>
+          {% endif %}
+        </div>
+      </section>
+
+      <section class="tab" id="openingsTab">
+        <div class="card">
+          <h3>Internship Pipeline</h3>
+          <p class="muted tiny">Every opening shows pending demand, active pipeline, and next action.</p>
+
+          <div class="list-wrap">
+            {% if internships and internships|length > 0 %}
+              {% for i in internships %}
+                <div class="list-card stack-mobile">
+                  <div>
+                    <h4>{{ i['company_name'] }} - {{ i['role_title'] }}</h4>
+                    <p>{{ i['sector'] }} | {{ i['mode']|capitalize }} | {{ i['location'] }} | Seats Left: {{ i['seats'] }}</p>
+                    <p class="muted tiny">Applications: {{ i['app_count'] }} | Pending: {{ i['pending_count'] }} | Allocated: {{ i['allocated_count'] }} | Interview: {{ i['interview_count'] }} | Verified: {{ i['verified_count'] }} | Offer: {{ i['offer_count'] }} | Accepted: {{ i['accepted_count'] }}</p>
+                    {% if i['status'] == 'reapproval' %}
+                      <p class="muted tiny">Needs reapproval because a seat returned to the system.</p>
+                    {% endif %}
+                  </div>
+                  <div class="action-group vertical-on-mobile">
+                    {% if i['pending_count'] > 0 %}
+                      <form method="POST" action="/admin/bulk_approve">
+                        <input type="hidden" name="internship_id" value="{{ i['id'] }}">
+                        <button class="btn btn-primary small" type="submit">Bulk Approve</button>
+                      </form>
+                      <a class="btn btn-outline small" href="/admin/internship/{{ i['id'] }}/matches">Review Ranked</a>
+                    {% else %}
+                      <span class="status-pill pending">No Pending Applicants</span>
+                    {% endif %}
+                  </div>
+                </div>
+              {% endfor %}
+            {% else %}
+              <div class="list-card">
+                <div>
+                  <h4>No internship postings yet</h4>
+                  <p>Company openings will appear here once posted.</p>
+                </div>
+              </div>
+            {% endif %}
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <script src="{{ url_for('static', filename='script.js') }}"></script>
+</body>
+</html>

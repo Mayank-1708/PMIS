@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>PM Internship Scheme | Smart Allocation Engine</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body class="future-theme">
+  {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+      <div class="toast-wrap">
+        {% for category, message in messages %}
+          <div class="toast {{ category }}">{{ message }}</div>
+        {% endfor %}
+      </div>
+    {% endif %}
+  {% endwith %}
+
+  <header class="navbar">
+    <div class="nav-left">
+      <div class="logo">PM Internship Scheme</div>
+    </div>
+
+    <nav class="nav-links" id="navLinks">
+      <a href="#home">Home</a>
+      <a href="#how">How It Works</a>
+      <a href="#impact">Impact</a>
+      <a href="#contact">Contact</a>
+      <a class="btn btn-primary small" href="/login">Login</a>
+    </nav>
+
+    <button class="nav-toggle" id="navToggle">Menu</button>
+  </header>
+
+  <main class="container" id="home">
+    <section class="hero hero-premium reveal-up future-hero">
+      <div class="hero-left">
+        <span class="eyebrow">AI-Assisted Public Internship Allocation</span>
+        <h1>Turn internship allocation into a hopeful, transparent journey.</h1>
+        <p class="muted">A future-facing PM Internship platform for semantic candidate matching, admin allocation, company interview verification, and one final student acceptance in a clean, trustworthy workflow.</p>
+
+        <div class="hero-actions">
+          <a href="/login" class="btn btn-primary">Open Portal</a>
+          <a href="#how" class="btn btn-outline">See Workflow</a>
+        </div>
+
+        <div class="hero-badges">
+          <span class="badge">TF-IDF + Ontology + Optional Embeddings</span>
+          <span class="badge">Bulk Allocation</span>
+          <span class="badge">Interview Verification</span>
+        </div>
+      </div>
+
+      <div class="hero-right">
+        <div class="glass-card feature-panel hero-visual-card">
+          <div class="visual-topline">
+            <span class="section-label">Future Ready</span>
+            <span class="mini-pill">12 Month Internship Cycle</span>
+          </div>
+          <div class="visual-spotlight">
+            <div class="spotlight-ring"></div>
+            <div class="spotlight-card">
+              <h3>System Snapshot</h3>
+              <p class="muted">Designed to feel modern, fair, and easy to understand for students, companies, and admins.</p>
+            </div>
+          </div>
+          <div class="metric-row">
+            <div class="metric-stat">
+              <small>Ranking</small>
+              <b>AI-assisted</b>
+            </div>
+            <div class="metric-stat">
+              <small>Allocation</small>
+              <b>Bulk + Transparent</b>
+            </div>
+            <div class="metric-stat">
+              <small>Outcome</small>
+              <b>Verified Offer Flow</b>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section reveal-up" id="how">
+      <span class="section-label">Workflow</span>
+      <h2>How it works</h2>
+      <div class="grid3">
+        <div class="card hover-lift">
+          <div class="card-icon">1</div>
+          <h3>Rank</h3>
+          <p class="muted">The recommendation engine scores each candidate against each internship using semantic and structured matching.</p>
+        </div>
+        <div class="card hover-lift">
+          <div class="card-icon">2</div>
+          <h3>Allocate</h3>
+          <p class="muted">The admin uses ranked output and seat availability to bulk allocate candidates into the interview pipeline.</p>
+        </div>
+        <div class="card hover-lift">
+          <div class="card-icon">3</div>
+          <h3>Verify</h3>
+          <p class="muted">Companies schedule interviews, verify profiles, send offers, and students accept only one final offer.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="section reveal-up" id="impact">
+      <span class="section-label">Impact</span>
+      <div class="grid2">
+        <div class="card hover-lift">
+          <h3>Why It Feels Real</h3>
+          <p class="muted">This flow mirrors actual placement logic: multiple interviews can happen in parallel, offers can come from multiple companies, and one acceptance triggers reallocation for the others.</p>
+        </div>
+        <div class="card hover-lift">
+          <h3>Why It Is Practical</h3>
+          <p class="muted">The architecture stays lightweight for hackathons and demos while still showing AI-assisted ranking, transparent scoring, admin control, and company verification.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="section reveal-up" id="contact">
+      <div class="card hero-footer-card contact-grid">
+        <div>
+          <span class="section-label">Presentation Ready</span>
+          <h2>Built for first impressions and end-to-end clarity.</h2>
+          <p class="muted">This prototype is designed to demonstrate the full lifecycle of internship matching and allocation to judges in one clean experience.</p>
+        </div>
+        <div class="footer-actions">
+          <a href="/login" class="btn btn-primary">Launch Portal</a>
+          <a href="#home" class="btn btn-outline">Back to Top</a>
+        </div>
+      </div>
+    </section>
+
+    <footer class="footer">
+      <p class="muted">Prototype for Hackathon | PM Internship Scheme Smart Allocation Engine</p>
+    </footer>
+  </main>
+
+  <script src="{{ url_for('static', filename='script.js') }}"></script>
+</body>
+</html>

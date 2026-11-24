@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Applicant Profile Review</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+  <div class="container page-shell">
+    <a class="btn btn-outline small" href="/admin/internship/{{ internship['id'] }}/matches">Back to Ranked Applicants</a>
+
+    <div class="card top-gap">
+      <h2>Applicant Full Profile</h2>
+      <p class="muted tiny">Internship: <b>{{ internship['company_name'] }}</b> - {{ internship['role_title'] }}</p>
+    </div>
+
+    <div class="grid2 top-gap compact-grid">
+      <div class="card hover-soft compact-card">
+        <h3>Personal Details</h3>
+        <p><b>Name:</b> {{ seeker['name'] }}</p>
+        <p><b>Phone:</b> {{ seeker['phone'] }}</p>
+        <p><b>Age:</b> {{ seeker['age'] }}</p>
+        <p><b>Rural/Urban:</b> {{ seeker['rural_urban'] }}</p>
+        <p><b>Caste Category:</b> {{ seeker['caste_category'] }}</p>
+        <p><b>Aspirational District:</b> {{ seeker['aspirational_district'] }}</p>
+        <p><b>First-Time Intern:</b> {{ seeker['first_time_intern'] }}</p>
+        <p><b>PWD:</b> {{ seeker['pwd'] }}</p>
+      </div>
+      <div class="card hover-soft compact-card">
+        <h3>Education</h3>
+        <p><b>10th Marks:</b> {{ seeker['marks10'] }}%</p>
+        <p><b>12th Marks:</b> {{ seeker['marks12'] }}%</p>
+        <p><b>GPA:</b> {{ seeker['gpa'] }}</p>
+        <p><b>Degree:</b> {{ seeker['degree'] }}</p>
+        <p><b>Branch:</b> {{ seeker['branch'] }}</p>
+        <p><b>College:</b> {{ seeker['college_name'] }}</p>
+        <p><b>College Type:</b> {{ seeker['college_type'] }}</p>
+      </div>
+    </div>
+
+    <div class="card hover-soft compact-card top-gap">
+      <h3>Skills and Preferences</h3>
+      <p><b>Skills:</b> {{ seeker['skills'] }}</p>
+      <p><b>Experience Level:</b> {{ seeker['experience_level'] }}</p>
+      <p><b>Sector Interest:</b> {{ seeker['sector_interest'] }}</p>
+      <p><b>Preferred Mode:</b> {{ seeker['preferred_mode'] }}</p>
+      <p><b>Preferred Location:</b> {{ seeker['preferred_location'] }}</p>
+      <p><b>LOR Available:</b> {{ seeker['lor_available'] }}</p>
+      <p><b>Income Bracket:</b> {{ seeker['income_bracket'] }}</p>
+    </div>
+
+    {% if application %}
+      <div class="card hover-soft compact-card top-gap">
+        <h3>Application Pipeline</h3>
+        <p><b>Status:</b> {{ application['status'] }}</p>
+        <p><b>Match Score:</b> {{ application['match_score'] }}</p>
+        <p><b>Match Reason:</b> {{ application['match_reason'] }}</p>
+        <p><b>Interview Status:</b> {{ application['interview_status'] }}</p>
+        <p><b>Interview Date:</b> {{ application['interview_date'] or 'Not scheduled' }}</p>
+        <p><b>Company Verification:</b> {{ application['company_verification'] or 'pending' }}</p>
+        <p><b>Company Feedback:</b> {{ application['company_feedback'] or 'No company remarks yet.' }}</p>
+        <p><b>Admin Note:</b> {{ application['admin_decision_note'] or 'No admin note added.' }}</p>
+      </div>
+    {% endif %}
+  </div>
+</body>
+</html>

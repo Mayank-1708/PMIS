@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Admin Matches</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+  {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+      <div class="toast-wrap">
+        {% for category, message in messages %}
+          <div class="toast {{ category }}">{{ message }}</div>
+        {% endfor %}
+      </div>
+    {% endif %}
+  {% endwith %}
+
+  <div class="container page-shell">
+    <div class="page-actions">
+      <a class="btn btn-outline small" href="/admin/dashboard">Back to Dashboard</a>
+      <form method="POST" action="/admin/bulk_approve">
+        <input type="hidden" name="internship_id" value="{{ internship['id'] }}">
+        <button class="btn btn-primary small" type="submit">Bulk Approve Top Candidates</button>
+      </form>
+    </div>
+
+    <div class="card">
+      <h2>{{ internship['company_name'] }} - {{ internship['role_title'] }}</h2>
+      <p class="muted tiny">Sector: {{ internship['sector'] }} | Mode: {{ internship['mode']|capitalize }} | Location: {{ internship['location'] }} | Seats Left: {{ internship['seats'] }}</p>
+      <p class="muted tiny">Total applications: {{ total_applications }} | Active pipeline: {{ live_pipeline_count }}</p>
+      {% if internship['status'] == 'reapproval' %}
+        <p class="muted tiny">This opening returned to reapproval because a seat was released after company review or student choice.</p>
+      {% endif %}
+    </div>
+
+    <div class="section">
+      <div class="section-banner">
+        <h2>Ranked Pending Applicants</h2>
+        <p class="muted">Candidates are ranked using the upgraded architecture: TF-IDF, synonym expansion, ontology matching, optional embeddings, ML-style success signals, opportunity-gap scoring, and policy-aware priority.</p>
+      </div>
+
+      {% if ranked|length == 0 %}
+        <div class="card hover-soft">
+          <h4>No eligible pending candidates found</h4>
+          <p class="muted tiny">Wait for new applications or re-run after profiles are updated.</p>
+        </div>
+      {% else %}
+        <div class="internships single-column">
+          {% for s in ranked %}
+            <div class="intern-card hover-lift wide-card">
+              <div class="intern-head">
+                <div>
+                  <h4>{{ s.name }}</h4>
+                  <p class="muted tiny">Phone: {{ s.phone }} | Skills: {{ s.skills }}</p>
+                </div>
+                <span class="match-badge">{{ s.score|int }}% Match</span>
+              </div>
+
+              <div class="progress"><div class="progress-bar" style="width: {{ s.score|int }}%;"></div></div>
+
+              <div class="mini-metrics ai-signal-row">
+                <span class="metric-pill">AI Rank: <b>{{ (s.ai_rank_score * 100)|round(1) }}%</b></span>
+                <span class="metric-pill">Skill Graph: <b>{{ (s.skill_similarity * 100)|round(1) }}%</b></span>
+                <span class="metric-pill">Semantic: <b>{{ (s.semantic_similarity * 100)|round(1) }}%</b></span>
+                <span class="metric-pill">Success: <b>{{ (s.success_probability * 100)|round(1) }}%</b></span>
+                <span class="metric-pill">Acceptance: <b>{{ (s.offer_acceptance_probability * 100)|round(1) }}%</b></span>
+                <span class="metric-pill">Opportunity Gap: <b>{{ (s.opportunity_gap_score * 100)|round(1) }}%</b></span>
+                <span class="metric-pill">Policy Priority: <b>{{ (s.policy_priority_score * 100)|round(1) }}%</b></span>
+                <span class="metric-pill">Student Preference: <b>#{{ s.student_preference_rank }}</b></span>
+              </div>
+
+              <div class="grid2 compact-grid">
+                <details class="why-box open-card" open>
+                  <summary>Why recommended?</summary>
+                  <ul>
+                    {% for reason in s.reasons %}
+                      <li>{{ reason }}</li>
+                    {% endfor %}
+                  </ul>
+                </details>
+
+                <details class="why-box open-card" open>
+                  <summary>Score breakdown</summary>
+                  <ul>
+                    {% for k, v in s.breakdown.items() %}
+                      <li><b>{{ k }}</b>: {{ v }}</li>
+                    {% endfor %}
+                  </ul>
+                </details>
+              </div>
+
+              <div class="action-group vertical-on-mobile top-gap">
+                <a class="btn btn-outline" href="/admin/view_seeker/{{ s.user_id }}/internship/{{ internship['id'] }}">View Full Profile</a>
+                <form method="POST" action="/admin/approve">
+                  <input type="hidden" name="internship_id" value="{{ internship['id'] }}">
+                  <input type="hidden" name="seeker_user_id" value="{{ s.user_id }}">
+                  <button class="btn btn-primary" type="submit">Approve Individually</button>
+                </form>
+              </div>
+            </div>
+          {% endfor %}
+        </div>
+      {% endif %}
+    </div>
+  </div>
+</body>
+</html>

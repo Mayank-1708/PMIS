@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Candidate Verification Flow</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+  {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+      <div class="toast-wrap">
+        {% for category, message in messages %}
+          <div class="toast {{ category }}">{{ message }}</div>
+        {% endfor %}
+      </div>
+    {% endif %}
+  {% endwith %}
+
+  <div class="container page-shell">
+    <div class="page-actions">
+      <a class="btn btn-outline small" href="/company/dashboard">Back to Company Dashboard</a>
+      <form method="POST" action="/company/send_verified_offers">
+        <input type="hidden" name="internship_id" value="{{ internship['id'] }}">
+        <button class="btn btn-primary small" type="submit">Send Offer to All Verified</button>
+      </form>
+    </div>
+
+    <div class="card top-gap">
+      <h2>{{ internship['company_name'] }} - {{ internship['role_title'] }}</h2>
+      <p class="muted tiny">Location: {{ internship['location'] }} | Mode: {{ internship['mode']|capitalize }} | Seats Left: {{ internship['seats'] }}</p>
+      <p class="muted tiny">Candidates may appear here in parallel because the admin allocation step can recommend them to multiple openings before they choose one final offer.</p>
+    </div>
+
+    <div class="internships single-column top-gap">
+      {% for candidate in candidates %}
+        <div class="intern-card wide-card">
+          <div class="intern-head">
+            <div>
+              <h4>{{ candidate['name'] }}</h4>
+              <p class="muted tiny">Phone: {{ candidate['phone'] }} | Match Score: {{ candidate['match_score']|int }}%</p>
+            </div>
+            <span class="status-pill {{ candidate['status_badge']['class'] }}">{{ candidate['status_badge']['label'] }}</span>
+          </div>
+
+          <div class="grid2 compact-grid top-gap">
+            <div class="card hover-soft compact-card">
+              <h4>Profile Snapshot</h4>
+              <p><b>Age:</b> {{ candidate['age'] }}</p>
+              <p><b>Skills:</b> {{ candidate['skills'] }}</p>
+              <p><b>Degree:</b> {{ candidate['degree'] }} ({{ candidate['branch'] }})</p>
+              <p><b>Sector Interest:</b> {{ candidate['sector_interest'] }}</p>
+            </div>
+            <div class="card hover-soft compact-card">
+              <h4>Verification Snapshot</h4>
+              <p><b>Interview Status:</b> {{ candidate['interview_status'] or 'not_scheduled' }}</p>
+              <p><b>Interview Date:</b> {{ candidate['interview_date'] or 'Not scheduled yet' }}</p>
+              <p><b>Company Verification:</b> {{ candidate['company_verification'] or 'pending' }}</p>
+              <p><b>Feedback:</b> {{ candidate['company_feedback'] or 'No company remarks yet.' }}</p>
+            </div>
+          </div>
+
+          <div class="action-grid top-gap">
+            <form method="POST" action="/company/schedule_interview" class="stack-form">
+              <input type="hidden" name="internship_id" value="{{ internship['id'] }}">
+              <input type="hidden" name="seeker_user_id" value="{{ candidate['seeker_user_id'] }}">
+              <label>Interview Date / Slot</label>
+              <input type="text" name="interview_date" placeholder="2026-04-10 11:00 AM" {% if candidate['status'] not in ['allocated', 'interview_scheduled'] %}disabled{% endif %}>
+              <label>Interview Note</label>
+              <textarea name="company_feedback" rows="3" placeholder="Verification call details" {% if candidate['status'] not in ['allocated', 'interview_scheduled'] %}disabled{% endif %}></textarea>
+              <button class="btn btn-primary" type="submit" {% if candidate['status'] not in ['allocated', 'interview_scheduled'] %}disabled{% endif %}>Schedule / Update Interview</button>
+            </form>
+
+            <form method="POST" action="/company/verify_candidate" class="stack-form">
+              <input type="hidden" name="internship_id" value="{{ internship['id'] }}">
+              <input type="hidden" name="seeker_user_id" value="{{ candidate['seeker_user_id'] }}">
+              <label>Verification Feedback</label>
+              <textarea name="company_feedback" rows="3" placeholder="Candidate verified successfully" {% if candidate['status'] not in ['allocated', 'interview_scheduled'] %}disabled{% endif %}></textarea>
+              <button class="btn btn-primary" type="submit" {% if candidate['status'] not in ['allocated', 'interview_scheduled'] %}disabled{% endif %}>Mark Candidate Verified</button>
+            </form>
+
+            <form method="POST" action="/company/give_offer" class="stack-form">
+              <input type="hidden" name="internship_id" value="{{ internship['id'] }}">
+              <input type="hidden" name="seeker_user_id" value="{{ candidate['seeker_user_id'] }}">
+              <label>Offer Stage</label>
+              <input type="text" value="Only verified candidates can receive the final offer." disabled>
+              <button class="btn btn-primary" type="submit" {% if candidate['status'] != 'verified' %}disabled{% endif %}>Send Final Offer</button>
+            </form>
+
+            <form method="POST" action="/company/reject_candidate" class="stack-form danger-form">
+              <input type="hidden" name="internship_id" value="{{ internship['id'] }}">
+              <input type="hidden" name="seeker_user_id" value="{{ candidate['seeker_user_id'] }}">
+              <label>Rejection / Mismatch Note</label>
+              <textarea name="company_feedback" rows="3" placeholder="Mismatch or unverifiable details" {% if candidate['status'] in ['successful', 'accepted', 'rejected'] %}disabled{% endif %}></textarea>
+              <button class="btn btn-outline danger-outline" type="submit" {% if candidate['status'] in ['successful', 'accepted', 'rejected'] %}disabled{% endif %}>Reject and Reopen Seat</button>
+            </form>
+          </div>
+        </div>
+      {% endfor %}
+    </div>
+  </div>
+</body>
+</html>
