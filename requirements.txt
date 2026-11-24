@@ -1,0 +1,8 @@
+flask
+werkzeug
+scikit-learn
+sentence-transformers
+torch
+lightgbm
+shap
+xgboost
