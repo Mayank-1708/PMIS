@@ -87,7 +87,7 @@ Follow these steps to run the project locally.
 ### Step 1: Clone the Repository
 
 ```bash
-git clone https://github.com/YOUR_USERNAME/PMIS-Smart-Allocation.git
+git clone https://github.com/Mayank-1708/PMIS-Smart-Allocation.git
 ```
 
 ### Step 2: Navigate to the Project Directory
